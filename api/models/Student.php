@@ -1,7 +1,8 @@
 <?php
 include_once('Functions.php');
 
-class Student {
+class Student
+{
     //DB stuff
     private $conn;
     private $table = 'student';
@@ -25,31 +26,38 @@ class Student {
     public $photo;
     public $status;
 
+
+
+    // CREATE TABLE `cbtexams`.`student` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `lastname` VARCHAR(50) NULL , `firstname` VARCHAR(50) NULL , `middlename` INT(50) NULL , `gender` VARCHAR(10) NULL , `phone` VARCHAR(20) NULL , `username` VARCHAR(50) NULL , `password` VARCHAR(50) NULL , `guardian_phone` VARCHAR(20) NULL , `address` VARCHAR(191) NULL , `guardian_name` VARCHAR(191) NULL , `adm_no` VARCHAR(50) NULL , `class_id` INT(11) NULL , `house_id` INT(11) NULL , `photo` VARCHAR(191) NULL , `status` TINYINT(1) NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB; 
+
+
+
     //Constructor with DB
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
     //Get Student
-    public function read() {
+    public function read()
+    {
         $this->id = Functions::sanitize($this->id);
         $this->gender = Functions::sanitize($this->gender);
         $this->house_id = Functions::sanitize($this->house_id);
         $this->class_id = Functions::sanitize($this->class_id);
         //Create Query
-        $query = 
-        'SELECT 
+        $query =
+            'SELECT 
             s.*, 
             c.title AS class
-        FROM '. $this->table . ' AS s ' .
-        ' JOIN '.  $this->class_table . ' AS c ' .
-        ' ON s.class_id = c.id ' . 
-        'WHERE 1 ' .
-        (!empty($this->class_id) ? ' AND s.class_id = ' . $this->class_id : '') .
-        (!empty($this->gender) ? ' AND s.gender = "' . $this->gender . '"' : '') .
-        (!empty($this->id) ? ' AND s.id = ' . $this->id : '') . 
-        ' ORDER BY class ASC '
-        ;
+        FROM ' . $this->table . ' AS s ' .
+            ' JOIN ' .  $this->class_table . ' AS c ' .
+            ' ON s.class_id = c.id ' .
+            'WHERE 1 ' .
+            (!empty($this->class_id) ? ' AND s.class_id = ' . $this->class_id : '') .
+            (!empty($this->gender) ? ' AND s.gender = "' . $this->gender . '"' : '') .
+            (!empty($this->id) ? ' AND s.id = ' . $this->id : '') .
+            ' ORDER BY class ASC ';
         //Prepared statement
         $stmt = $this->conn->prepare($query);
         //Execute the query
@@ -58,7 +66,8 @@ class Student {
     }
 
     //Create Student
-    public function create() {
+    public function create()
+    {
         $this->lastname = Functions::sanitize($this->lastname);
         $this->firstname = Functions::sanitize($this->firstname);
         $this->middlename = Functions::sanitize($this->middlename);
@@ -75,9 +84,9 @@ class Student {
         $this->photo = Functions::sanitize($this->photo);
 
         //Create query
-        $query = 'INSERT INTO '. 
-        $this->table .
-        ' SET
+        $query = 'INSERT INTO ' .
+            $this->table .
+            ' SET
             lastname = :lastname,
             firstname = :firstname,
             middlename = :middlename,
@@ -122,7 +131,8 @@ class Student {
 
 
     //Update Student
-    public function update() {
+    public function update()
+    {
         $this->id = Functions::sanitize($this->id);
         $this->lastname = Functions::sanitize($this->lastname);
         $this->firstname = Functions::sanitize($this->firstname);
@@ -139,7 +149,7 @@ class Student {
         $this->photo = Functions::sanitize($this->photo);
         $this->status = 1;
         //Create query
-        $query = 'UPDATE '. $this->table . ' SET ' . Functions::prepareUpdateData($this) . ' WHERE id = ' . $this->id;
+        $query = 'UPDATE ' . $this->table . ' SET ' . Functions::prepareUpdateData($this) . ' WHERE id = ' . $this->id;
         //prepare statement
         $stmt = $this->conn->prepare($query);
         //execute query
@@ -154,7 +164,8 @@ class Student {
 
 
     //delete Student
-    public function delete() {
+    public function delete()
+    {
         $query = 'DELETE FROM ' . $this->table . ' WHERE id = :id';
 
         //prepare statement
@@ -162,21 +173,20 @@ class Student {
 
         //clean data
         $this->id = htmlspecialchars(strip_tags(trim($this->id)));
-        
+
         //bind data
         $stmt->bindParam('id', $this->id);
 
         //execute query
         $stmt->execute();
-        
-        if ($stmt->rowCount()==1) {
+
+        if ($stmt->rowCount() == 1) {
             return true;
         }
-        
+
         // print error if something goes wrong
         // printf("Error: %s, \n", $stmt->error);
 
         return false;
     }
-
 }
